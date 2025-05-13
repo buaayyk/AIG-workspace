@@ -6,23 +6,29 @@ split_tries = 3000
 training_dataset_size = 400000
 validation_dataset_size = 50000
 test_dataset_size = 50000
-life_cycle = 200
-train_batch_size = 512
-valid_batch_size = 512
+life_cycle = 100
+train_batch_size = 4096
+valid_batch_size = 4096
+saving_period = 1000
+life_cycle = 100
 
 for split_method in ["Random", "RandomFull", "Cascade", "CascadeFull", "Window", "MixBasic", "MixSuper", "Full"]:
     if split_method == "Full":
         training_dataset_size = 11390
         validation_dataset_size = 1424
         test_dataset_size = 1424
-        train_batch_size = 1
-        valid_batch_size = 1
+        train_batch_size = 2
+        valid_batch_size = 2
+        saving_period = 11000
+        life_cycle = 50
     else:
         training_dataset_size = 400000
         validation_dataset_size = 50000
         test_dataset_size = 50000
-        train_batch_size = 512
-        valid_batch_size = 512
+        train_batch_size = 4096
+        valid_batch_size = 4096
+        saving_period = 1000
+        life_cycle = 100
     
     for mask_method in ["Random", "Purpose"]:
         if mask_method == "Random":
@@ -30,7 +36,7 @@ for split_method in ["Random", "RandomFull", "Cascade", "CascadeFull", "Window",
         else:
             mask_ratio = 1
 
-        s_toml = f'''logging_filepath = "logs/preprocess/MAEGIN_{split_method}_{mask_method}.log" # Logging file path where logs will be saved, default to None, which may save to a default path that is determined by the Younger.
+        s_toml = f'''logging_filepath = "logs/train/MAEGIN_{split_method}_{mask_method}.log" # Logging file path where logs will be saved, default to None, which may save to a default path that is determined by the Younger.
 scheduled_sampling = false # Enable scheduled sampling during training to gradually shift from teacher forcing to model predictions.
 scheduled_sampling_fixed = true # Use a fixed scheduled sampling ratio instead of dynamic scheduling.
 scheduled_sampling_cycle = [100] # Training epochs at which to apply scheduled sampling updates in a cyclic manner.
@@ -54,7 +60,7 @@ shuffle = true # Shuffle the training data each epoch.
 life_cycle = {life_cycle} # Lefe cycle of the training process (in epochs).
 report_period = 100 # Period (in steps) to report the training status.
 update_period = 1 # Period (in steps) to update the model parameters.
-saving_period = 1000 # Period (in steps) to save the model parameters.
+saving_period = {saving_period} # Period (in steps) to save the model parameters.
 train_batch_size = {train_batch_size} # Batch size for training.
 valid_batch_size = {valid_batch_size} # Batch size for validation.
 early_stop_enable = false # Stop training early if the metric no longer improves.

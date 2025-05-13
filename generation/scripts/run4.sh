@@ -1,8 +1,8 @@
 #!/bin/bash
 
-export CUDA_VISIBLE_DEVICES=1
+export CUDA_VISIBLE_DEVICES=3
 
-methods=("Full" "CascadeFull" "Cascade" "RandomFull")
+methods=("Random" "MixSuper" "MixBasic" "Window")
 
 for method in ${methods[*]}
 do

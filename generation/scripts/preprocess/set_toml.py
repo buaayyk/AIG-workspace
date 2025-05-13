@@ -5,16 +5,30 @@ split_tries = 3000
 training_dataset_size = 400000
 validation_dataset_size = 50000
 test_dataset_size = 50000
+split_limit = 50
+early_stop_enable = "true"
+life_cycle = 100
+
 for split_method in ["Random", "RandomFull", "Cascade", "CascadeFull", "Window", "MixBasic", "MixSuper", "Full"]:
     if split_method == "Full":
         training_dataset_size = 11390
         validation_dataset_size = 1424
-        test_dataset_size = 1424
+        test_dataset_size = 1424        
+        split_count = 300
+        split_tries = 3000
+        split_limit = 50000
     else:
         training_dataset_size = 400000
         validation_dataset_size = 50000
         test_dataset_size = 50000
-
+        if split_method == "RandomFull" or split_method == "CascadeFull":
+            split_count = 500
+            split_tries = 4000
+        else:
+            split_count = 300
+            split_tries = 3000
+        split_limit = 50
+        
     s_toml = f'''logging_filepath = "logs/preprocess/{split_method}.log" # Logging file path where logs will be saved, default to None, which may save to a default path that is determined by the Younger.
 scheduled_sampling = false # Enable scheduled sampling during training to gradually shift from teacher forcing to model predictions.
 scheduled_sampling_fixed = true # Use a fixed scheduled sampling ratio instead of dynamic scheduling.
@@ -42,7 +56,7 @@ update_period = 1 # Period (in steps) to update the model parameters.
 saving_period = 1000 # Period (in steps) to save the model parameters.
 train_batch_size = 32 # Batch size for training.
 valid_batch_size = 32 # Batch size for validation.
-early_stop_enable = false # Stop training early if the metric no longer improves.
+early_stop_enable = {early_stop_enable} # Stop training early if the metric no longer improves.
 early_stop_target = "min" # Whether the monitored metric should be minimized or maximized.
 early_stop_metric = "loss" # The name of the metric to monitor for early stopping.
 early_stop_patience = 10 # Number of evaluation round to wait for an improvement before stopping.
@@ -77,7 +91,7 @@ method = "{split_method}" # Graph splitting method. 'Random' selects a random no
 split_scale = [15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25] # List of node counts to include in subgraph splits expanded from central nodes. Each value specifies a different subgraph split scale to generate.
 split_count = {split_count} # Number of subgraph splits to generate per central node.
 split_tries = {split_tries} # Maximum number of attempts to generate `split_count` valid subgraphs (e.g., avoiding duplicates or undersized splits).
-split_limit = 50 # Maximum allowed size (in number of nodes) for a subgraph split. If a candidate subgraph exceeds this size, it will be discarded. This limit only applies to methods that involve the 'Window' extraction strategy, including 'Window' and mixed strategies 'MixSuper'.
+split_limit = {split_limit} # Maximum allowed size (in number of nodes) for a subgraph split. If a candidate subgraph exceeds this size, it will be discarded. This limit only applies to methods that involve the 'Window' extraction strategy, including 'Window' and mixed strategies 'MixSuper'.
 training_dataset_size = {training_dataset_size} # Number of subgraphs splits to include in the training set.
 validation_dataset_size = {validation_dataset_size} # Number of subgraphs splits to include in the validation set.
 test_dataset_size = {test_dataset_size} # Number of subgraph splits to include in the test set.

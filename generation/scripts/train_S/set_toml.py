@@ -1,19 +1,27 @@
-logging_filepath = "logs/train/MAEGIN_MixSuper_Random.log" # Logging file path where logs will be saved, default to None, which may save to a default path that is determined by the Younger.
-scheduled_sampling = false # Enable scheduled sampling during training to gradually shift from teacher forcing to model predictions.
+for number_of_levels in [1, 2, 3, 4, 5]:
+    scheduled_sampling_level = list(range(1, number_of_levels + 1))
+    checkpoint_basename = "MAEGIN_MixSuper_Purpose"
+    if number_of_levels == 1:
+        resume_filepath = f"checkpoints/{checkpoint_basename}"
+    else:
+        resume_filepath = f"checkpoints/{checkpoint_basename}_S{number_of_levels - 1}/{checkpoint_basename}_best.cp"
+
+    s_toml = f'''logging_filepath = "logs/train_S/MAEGIN_MixSuper_Purpose_S{number_of_levels}.log" # Logging file path where logs will be saved, default to None, which may save to a default path that is determined by the Younger.
+scheduled_sampling = true # Enable scheduled sampling during training to gradually shift from teacher forcing to model predictions.
 scheduled_sampling_fixed = true # Use a fixed scheduled sampling ratio instead of dynamic scheduling.
 scheduled_sampling_cycle = [100] # Training epochs at which to apply scheduled sampling updates in a cyclic manner.
-scheduled_sampling_level = [0] # Sampling level (e.g., prediction depth or difficulty) applied at each cycle stage.
+scheduled_sampling_level = {scheduled_sampling_level} # Sampling level (e.g., prediction depth or difficulty) applied at each cycle stage.
 scheduled_sampling_ratio = 0.15 # Initial probability of using model predictions instead of ground truth during training (between 0 and 1).
 scheduled_sampling_micro = 12 # Fine-grained control parameter for micro-level scheduled sampling behavior (e.g., per-step adjustment).
-mask_ratio = 0.15 # Ratio of elements (e.g., input tokens) to mask during training.
-mask_method = "Random" # Strategy for masking elements: 'Random' for uniform masking, 'Purpose' for task-specific or guided masking.
+mask_ratio = 1 # Ratio of elements (e.g., input tokens) to mask during training.
+mask_method = "Purpose" # Strategy for masking elements: 'Random' for uniform masking, 'Purpose' for task-specific or guided masking.
 
 # Nested Fields 0
 [trainer]
-checkpoint_savepath = "checkpoints/MAEGIN_MixSuper_Random" # Directory path to save checkpoint.
-checkpoint_basename = "MAEGIN_MixSuper_Random" # Base name of the checkpoint for save/load.
+checkpoint_savepath = "checkpoints/{checkpoint_basename}_S{number_of_levels}" # Directory path to save checkpoint.
+checkpoint_basename = "{checkpoint_basename}" # Base name of the checkpoint for save/load.
 checkpoint_keepdisk = 5 # Number of checkpoints to keep on disk.
-# resume_filepath = "Path" # Path to load checkpoint. If None, train from scratch.
+resume_filepath = "{resume_filepath}" # Path to load checkpoint. If None, train from scratch.
 reset_iteration = true # Whether to reset the iteration status (epoch, step) when loading a checkpoint.
 reset_optimizer = true # Whether to reset the optimizer when loading a checkpoint.
 reset_scheduler = true # Whether to reset the scheduler when loading a checkpoint.
@@ -22,7 +30,7 @@ shuffle = true # Shuffle the training data each epoch.
 life_cycle = 100 # Lefe cycle of the training process (in epochs).
 report_period = 100 # Period (in steps) to report the training status.
 update_period = 1 # Period (in steps) to update the model parameters.
-saving_period = 1000 # Period (in steps) to save the model parameters.
+saving_period = 100 # Period (in steps) to save the model parameters.
 train_batch_size = 4096 # Batch size for training.
 valid_batch_size = 4096 # Batch size for validation.
 early_stop_enable = false # Stop training early if the metric no longer improves.
@@ -111,3 +119,7 @@ start_factor = 0.1 # Initial learning rate multiplier for warm-up.
 warmup_steps = 1500 # Number of warm-up steps at the start of training.
 total_steps = 150000 # Total number of training steps for the scheduler to plan the learning rate schedule.
 last_step = -1 # The last step index when resuming training. Use -1 to start fresh.
+
+'''
+    with open(f"configs/train_S/{checkpoint_basename}_S{number_of_levels}.toml", "w") as f:
+        f.write(s_toml)
