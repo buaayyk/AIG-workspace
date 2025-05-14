@@ -1,0 +1,114 @@
+logging_filepath = "logs/evaluate/MAEGIN_MixSuper_Purpose_on_Cascade_Purpose.log" # Logging file path where logs will be saved, default to None, which may save to a default path that is determined by the Younger.
+scheduled_sampling = false # Enable scheduled sampling during training to gradually shift from teacher forcing to model predictions.
+scheduled_sampling_fixed = true # Use a fixed scheduled sampling ratio instead of dynamic scheduling.
+scheduled_sampling_cycle = [100] # Training epochs at which to apply scheduled sampling updates in a cyclic manner.
+scheduled_sampling_level = [0] # Sampling level (e.g., prediction depth or difficulty) applied at each cycle stage.
+scheduled_sampling_ratio = 0.15 # Initial probability of using model predictions instead of ground truth during training (between 0 and 1).
+scheduled_sampling_micro = 12 # Fine-grained control parameter for micro-level scheduled sampling behavior (e.g., per-step adjustment).
+mask_ratio = 1 # Ratio of elements (e.g., input tokens) to mask during training.
+mask_method = "Purpose" # Strategy for masking elements: 'Random' for uniform masking, 'Purpose' for task-specific or guided masking.
+
+# Nested Fields 0
+[trainer]
+checkpoint_savepath = "checkpoints/MAEGIN_MixSuper_Purpose" # Directory path to save checkpoint.
+checkpoint_basename = "MAEGIN_MixSuper_Purpose" # Base name of the checkpoint for save/load.
+checkpoint_keepdisk = 5 # Number of checkpoints to keep on disk.
+# resume_filepath = "Path" # Path to load checkpoint. If None, train from scratch.
+reset_iteration = true # Whether to reset the iteration status (epoch, step) when loading a checkpoint.
+reset_optimizer = true # Whether to reset the optimizer when loading a checkpoint.
+reset_scheduler = true # Whether to reset the scheduler when loading a checkpoint.
+seed = 3407 # Random seed for reproducibility.
+shuffle = true # Shuffle the training data each epoch.
+life_cycle = 100 # Lefe cycle of the training process (in epochs).
+report_period = 100 # Period (in steps) to report the training status.
+update_period = 1 # Period (in steps) to update the model parameters.
+saving_period = 1000 # Period (in steps) to save the model parameters.
+train_batch_size = 4096 # Batch size for training.
+valid_batch_size = 4096 # Batch size for validation.
+early_stop_enable = false # Stop training early if the metric no longer improves.
+early_stop_target = "min" # Whether the monitored metric should be minimized or maximized.
+early_stop_metric = "loss" # The name of the metric to monitor for early stopping.
+early_stop_patience = 10 # Number of evaluation round to wait for an improvement before stopping.
+early_stop_tolerance = 0.05 # Minimum change in the monitored metric to qualify as an improvement.
+distributed = false # Whether to use distributed training. If False, the options about distributed training will take no effect.
+master_addr = "localhost" # Master address for distributed training.
+master_port = "16161" # Master port for distributed training.
+master_rank = 0 # Master rank for distributed training. It should be < world_size and >= 0.
+node_number = 2 # Number of devices participating in distributed training. It should be > 1.
+worker_number = 10 # Number of workers for dataloader.
+
+# Nested Fields 1
+[evaluator]
+checkpoint_filepath = "checkpoints/MAEGIN_MixSuper_Purpose" # Path to load checkpoint.
+batch_size = 4096 # Batch size for validation.
+
+# Nested Fields 2
+[predictor]
+checkpoint_filepath = "<Path>" # Path to load checkpoint.
+source = "raw" # Source of input data for prediction. 'raw' indicates data is loaded from disk; 'api' indicates data comes from a live API call; 'cli' indicates data is passed from command-line interface.
+
+# Nested Fields 0
+[predictor.raw]
+load_dirpath = "<Path>" # Directory path to inputs on disk.
+save_dirpath = "<Path>" # Directory path to outputs on disk.
+
+# Nested Fields 3
+[preprocessor]
+load_dirpath = "../Assets/Younger-Filtered/skeleton" # Directory path to load LogicX's.
+save_dirpath = "data/MixSuper" # Directory path to save LogicX's.
+method = "MixSuper" # Graph splitting method. 'Random' selects a random node as center; BFS is used to expand the subgraph, retaining a random subset of nodes at each depth. 'RandomFull' is similar, but retains all nodes at each BFS depth. 'Cascade' restricts the expansion to ancestors or descendants of the center node, retaining a random subset at each depth. 'CascadeFull' is the full-retention version of 'Cascade', preserving all nodes at each BFS depth.'Window' randomly selects a graph and identifies nodes at a specific level; then performs a `split_scale`-step backward traversal, incorporating all traversed nodes and edges into the subgraph.'MixBasic' uniformly samples one of the following methods for each subgraph: 'Random', 'RandomFull', 'Cascade', or 'CascadeFull'. 'MixSuper' extends MixBasic by additionally including 'Window' in the set of candidate methods, sampling uniformly among all five.
+split_scale = [15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25] # List of node counts to include in subgraph splits expanded from central nodes. Each value specifies a different subgraph split scale to generate.
+split_count = 300 # Number of subgraph splits to generate per central node.
+split_tries = 3000 # Maximum number of attempts to generate `split_count` valid subgraphs (e.g., avoiding duplicates or undersized splits).
+split_limit = 50 # Maximum allowed size (in number of nodes) for a subgraph split. If a candidate subgraph exceeds this size, it will be discarded. This limit only applies to methods that involve the 'Window' extraction strategy, including 'Window' and mixed strategies 'MixSuper'.
+training_dataset_size = 400000 # Number of subgraphs splits to include in the training set.
+validation_dataset_size = 50000 # Number of subgraphs splits to include in the validation set.
+test_dataset_size = 50000 # Number of subgraph splits to include in the test set.
+min_graph_size = 5 # Minimum number of nodes a full graph must have to be considered for graph split. Graphs smaller than this value will be excluded. Set to `None` to disable this filter.
+# max_graph_size = <int> # Maximum number of nodes a full graph must have to be considered for graph split. Graphs larger than this value will be excluded. Set to `None` to disable this filter.
+# uuid_threshold = 5 # Occurence threshold to ignore uuid, lower than threshold will be discarded.
+seed = 16861 # Random seed for deterministic behavior during subgraph split sampling.
+
+# Nested Fields 4
+[train_dataset]
+meta_filepath = "data/MixSuper/training/meta.json" # Path to the metadata file that describes the dataset.
+raw_dirpath = "data/MixSuper/training/items" # Directory containing raw input data files.
+processed_dirpath = "data/MixSuper/training/processed" # Directory where processed dataset should be stored.
+worker_number = 4 # Number of workers for parallel data loading or processing.
+
+# Nested Fields 5
+[valid_dataset]
+meta_filepath = "data/MixSuper/validation/meta.json" # Path to the metadata file that describes the dataset.
+raw_dirpath = "data/MixSuper/validation/items" # Directory containing raw input data files.
+processed_dirpath = "data/MixSuper/validation/processed" # Directory where processed dataset should be stored.
+worker_number = 4 # Number of workers for parallel data loading or processing.
+
+# Nested Fields 6
+[test_dataset]
+meta_filepath = "data/Cascade/test/meta.json" # Path to the metadata file that describes the dataset.
+raw_dirpath = "data/Cascade/test/items" # Directory containing raw input data files.
+processed_dirpath = "data/Cascade/test/processed" # Directory where processed dataset should be stored.
+worker_number = 4 # Number of workers for parallel data loading or processing.
+
+# Nested Fields 7
+[model]
+model_type = "MAEGIN" # The identifier of the model type, e.g., 'MAEGIN', etc.
+node_emb_dim = 512 # Node embedding dimensionality.
+hidden_dim = 256 # Hidden layer dimensionality within the model.
+dropout_rate = 0.5 # Dropout probability used for regularization.
+layer_number = 3 # Number of layers (e.g., message-passing rounds for GNNs).
+
+# Nested Fields 8
+[optimizer]
+lr = 0.001 # Learning rate used by the optimizer.
+eps = 1e-08 # Epsilon for numerical stability.
+weight_decay = 0.01 # L2 regularization (weight decay) coefficient.
+amsgrad = false # Whether to use the AMSGrad variant of the Adam optimizer.
+
+# Nested Fields 9
+[scheduler]
+start_factor = 0.1 # Initial learning rate multiplier for warm-up.
+warmup_steps = 1500 # Number of warm-up steps at the start of training.
+total_steps = 150000 # Total number of training steps for the scheduler to plan the learning rate schedule.
+last_step = -1 # The last step index when resuming training. Use -1 to start fresh.
+
