@@ -1,0 +1,8 @@
+name: 'Younger'
+datafile: '/root/autodl-tmp/AIG/AIG-workspace/generation/data/DiGress_data/Younger-600.zip'
+random_subset: null
+pin_memory: False
+train_ratio: 0.9 # -1 means using train_len
+val_ratio: 0.1 # -1 means using val_len
+test_ratio: 0 # -1 means using test_len
+codebook: '/root/autodl-tmp/AIG/AIG-workspace/generation/data/DiGress_data/codebook.json'

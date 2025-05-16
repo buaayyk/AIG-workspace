@@ -3,3 +3,5 @@
 /generation/data
 /generation/logs
 /generation/figs
+/generation/outputs
+/generation/generated_graphs
