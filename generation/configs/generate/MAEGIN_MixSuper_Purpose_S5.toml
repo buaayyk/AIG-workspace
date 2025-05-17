@@ -3,7 +3,7 @@ scheduled_sampling = false # Enable scheduled sampling during training to gradua
 scheduled_sampling_fixed = true # Use a fixed scheduled sampling ratio instead of dynamic scheduling.
 scheduled_sampling_cycle = [100] # Training epochs at which to apply scheduled sampling updates in a cyclic manner.
 scheduled_sampling_level = [1, 2, 3, 4, 5] # Sampling level (e.g., prediction depth or difficulty) applied at each cycle stage.
-scheduled_sampling_ratio = 1 # Initial probability of using model predictions instead of ground truth during training (between 0 and 1).
+scheduled_sampling_ratio = 0.15 # Initial probability of using model predictions instead of ground truth during training (between 0 and 1).
 scheduled_sampling_micro = 12 # Fine-grained control parameter for micro-level scheduled sampling behavior (e.g., per-step adjustment).
 mask_ratio = 1 # Ratio of elements (e.g., input tokens) to mask during training.
 mask_method = "Purpose" # Strategy for masking elements: 'Random' for uniform masking, 'Purpose' for task-specific or guided masking.
@@ -51,7 +51,7 @@ generate_flag = true
 # Nested Fields 0
 [predictor.raw]
 load_dirpath = "data/Full/test" # Directory path to inputs on disk.
-save_dirpath = "generated_graphs/step-by-step" # Directory path to outputs on disk.
+save_dirpath = "generated_graphs/step-by-step-S5" # Directory path to outputs on disk.
 
 # Nested Fields 3
 [preprocessor]
